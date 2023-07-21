@@ -31,7 +31,7 @@ buttons.forEach((button) => {
   if (button.className === 'operator') {
     button.addEventListener('click', () => {
       // When operator is click
-      handleModInput(button.innerText)
+      handleMod(button.innerText)
     })
   }
   // MODIFIES CUR INPUT
@@ -62,26 +62,23 @@ clearButton.addEventListener('click', () => {
   subDisplay.textContent = ''
 })
 
-function handleModInput(btnText) {
-  setOperator(btnText)
+function handleMod(btnText) {
+  operator = btnText
   opPressed = true
   if (prevInput && curInput) {
-    subDisplay.textContent = `${prevInput} ${operator}`
     console.log('ready to eval')
-  } else if (!prevInput) {
+  } else if (!prevInput && curInput) {
     prevInput = curInput
     curInput = null
-    subDisplay.textContent = `${prevInput} ${operator}`
   }
+  subDisplay.textContent = (!prevInput ? ' ' : `${prevInput}`) + ` ${operator}`
 }
 
 function handleEval() {
+  answer = operate(operator, prevInput, curInput)
   mainDisplay.textContent = operate(operator, prevInput, curInput)
   subDisplay.textContent = `${prevInput} ${operator} ${curInput} =`
-}
-
-function setOperator(btnText) {
-  operator = btnText
+  prevInput = answer
 }
 
 // evalute the result given the operator and inputs
