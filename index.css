@@ -72,6 +72,9 @@ button {
   font-size: 1rem;
 }
 
+button#eval {
+  color: #183a4e;
+}
 button:hover {
   background-color: #323232;
 }
@@ -80,4 +83,35 @@ button:active {
   background-color: #202020;
   border-color: #3c3c3c;
   /* margin: -0.5px; */
+}
+
+button.operator,
+button#ce,
+button#c {
+  background-color: #323232;
+}
+
+button.operator:hover,
+button#ce:hover,
+button#c:hover {
+  background-color: #3c3c3c;
+}
+
+button.operator:active,
+button#ce:active,
+button#c:active {
+  background-color: #323232;
+}
+
+button#eval {
+  background-color: #4cc2ff;
+}
+
+button#eval:hover {
+  background-color: #47b1e8;
+}
+
+button#eval:active {
+  background-color: #41a1d7;
+  color: #2a688a;
 }

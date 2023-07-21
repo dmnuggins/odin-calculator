@@ -1,3 +1,7 @@
+const prev = 0
+const input = 0
+const operator = ''
+
 // evalute the result given the operator and inputs
 function operate(operator, prev, input) {
   switch (operator) {
