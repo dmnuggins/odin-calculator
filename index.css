@@ -1,7 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
   /* border: 1px solid blue; */
 }
 
@@ -42,6 +45,7 @@ header {
 
 .display .sub {
   font-size: 1rem;
+  color: #a2a2a2;
 }
 
 .display .main {
@@ -87,19 +91,22 @@ button:active {
 
 button.operator,
 button#ce,
-button#c {
+button#c,
+button.mod {
   background-color: #323232;
 }
 
 button.operator:hover,
 button#ce:hover,
-button#c:hover {
+button#c:hover,
+button.mod:hover {
   background-color: #3c3c3c;
 }
 
 button.operator:active,
 button#ce:active,
-button#c:active {
+button#c:active,
+button.mod:active {
   background-color: #323232;
 }
 
