@@ -46,6 +46,7 @@ header {
 .display .sub {
   font-size: 1rem;
   color: #a2a2a2;
+  height: 20px;
 }
 
 .display .main {
