@@ -1,7 +1,9 @@
 let prevInput = null
-let curInput = ''
+let curInput = null
 let curOperator = null
 let needDisplayReset = false
+let evaluated = false
+let opEval = false
 
 // add click handler to all buttons
 const buttons = document.querySelectorAll('button')
@@ -40,72 +42,102 @@ buttons.forEach((button) => {
   }
 })
 
-// clearEntryButton.addEventListener('click', () => {
-//   curInput = null
-//   initialState = true
-//   mainDisplay.textContent = curInput.toString()
-// })
-
-// clearButton.addEventListener('click', () => {
-//   prevInput = null
-//   curInput = null
-//   mainDisplay.textContent = 0
-//   subDisplay.textContent = ''
-//   initialState = true
-//   curOperator = null
-//   newInput = true
-//   lockFirstOperand = false
-//   evaluated = false
-// })
-
 const resetScreen = () => {
   mainDisplay.textContent = ''
   needDisplayReset = false
 }
 
 function handleNumInput(num) {
-  // clear display value to prep for updated num input
-  // when: first input of calc, after eval & after operator
+  // after pair has been evalu
+  if (evaluated) {
+    prevInput = null
+    curOperator = null
+    curInput = null
+    subDisplay.textContent = ''
+    evaluated = false
+  }
+
   if (mainDisplay.textContent === '0' || needDisplayReset) {
     resetScreen()
   }
-  // append display number
   mainDisplay.textContent += num
-  // set current input to main display num
+  curInput = parseInt(mainDisplay.textContent)
+  debugPrint()
 }
+
 // should set up prevInput
 function handleOperatorInput(operator) {
-  if (curOperator !== null) handleEvalInput()
+  if (evaluated) {
+    prevInput = mainDisplay.textContent
+    curInput = null
+    curOperator = operator
+    subDisplay.textContent = `${prevInput} ${curOperator}`
+    evaluated = false
+    debugPrint()
+  }
 
-  prevInput = mainDisplay.textContent
-  curOperator = operator
-  subDisplay.textContent = `${prevInput} ${curOperator}`
-  console.log('prevInput: ', prevInput)
-  console.log('curOperator: ', curOperator)
-  needDisplayReset = true
+  if (prevInput !== null && curOperator !== null && curInput !== null) {
+    console.log('double op')
+    const ans = operate(prevInput, curOperator, curInput)
+    mainDisplay.textContent = `${ans}`
+    subDisplay.textContent = `${ans} ${operator}`
+    curOperator = operator
+    prevInput = ans
+    curInput = null
+    needDisplayReset = true
+  } else if (curOperator !== null && curInput !== null) {
+    curOperator = operator
+    subDisplay.textContent = `${prevInput} ${curOperator}`
+    needDisplayReset = true
+  } else {
+    curOperator = operator
+    prevInput = parseInt(mainDisplay.textContent)
+    subDisplay.textContent = `${prevInput} ${curOperator}`
+    needDisplayReset = true
+  }
 }
 
 // need conditional to ensure there are 2 operands before handleEval
 function handleEvalInput() {
-  if (curOperator === null || needDisplayReset) return
-
-  if (curOperator === '÷' && mainDisplay.textContent === '0') {
-    mainDisplay.textContent = 'Result is undefined'
-    return
+  if (evaluated) {
+    // infinite operations
+    prevInput = parseInt(mainDisplay.textContent)
+    subDisplay.textContent = `${prevInput} ${curOperator} ${curInput}`
+    mainDisplay.textContent = operate(prevInput, curOperator, curInput)
+    needDisplayReset = true
+  } else {
+    if (prevInput !== null && curOperator !== null && curInput !== null) {
+      const ans = operate(prevInput, curOperator, curInput)
+      subDisplay.textContent = `${prevInput} ${curOperator} ${curInput} =`
+      mainDisplay.textContent = `${ans}`
+      needDisplayReset = true
+      evaluated = true
+      console.log('solve')
+    } else if (
+      prevInput !== null &&
+      curOperator !== null &&
+      curInput === null
+    ) {
+      console.log('half')
+      const ans = operate(prevInput, curOperator, prevInput)
+      subDisplay.textContent = `${prevInput} ${curOperator} ${prevInput} =`
+      mainDisplay.textContent = `${ans}`
+      needDisplayReset = true
+      evaluated = true
+    } else if (
+      prevInput === null &&
+      curOperator === null &&
+      (curInput === null || curInput !== null)
+    ) {
+      curInput = mainDisplay.textContent
+      subDisplay.textContent = `${curInput} =`
+      needDisplayReset = true
+    }
   }
-  console.log('curInput: ', curInput)
-  curInput = mainDisplay.textContent
-  mainDisplay.textContent = operate(
-    curOperator,
-    parseFloat(prevInput),
-    parseFloat(curInput)
-  )
-  subDisplay.textContent = `${prevInput} ${curOperator} ${curInput} =`
-  curOperator = null
 }
 
 // evalute the result given the operator and inputs
-function operate(operator, a, b) {
+function operate(a, operator, b) {
   switch (operator) {
     case '÷':
       // divide
@@ -145,10 +177,27 @@ function div(a, b) {
 function mult(a, b) {
   return a * b
 }
-// modify the current input
-function modify(input) {}
 
-// format numeric value with commas
-function formatNumberWithCommas(number) {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+// clearEntryButton.addEventListener('click', () => {
+//   curInput = null
+//   initialState = true
+//   mainDisplay.textContent = curInput.toString()
+// })
+
+// clearButton.addEventListener('click', () => {
+//   prevInput = null
+//   curInput = null
+//   mainDisplay.textContent = 0
+//   subDisplay.textContent = ''
+//   initialState = true
+//   curOperator = null
+//   newInput = true
+//   lockFirstOperand = false
+//   evaluated = false
+// })
+
+function debugPrint() {
+  console.log('prevInput: ', prevInput)
+  console.log('curOperator: ', curOperator)
+  console.log('curInput: ', curInput)
 }
