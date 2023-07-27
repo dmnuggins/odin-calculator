@@ -97,7 +97,7 @@ function handleNumInput(num) {
 function handleOperatorInput(operator) {
   // handle when operator is clicked after evaluation has been completed
   if (evaluated) {
-    prevInput = mainDisplay.textContent
+    prevInput = parseInt(mainDisplay.textContent)
     curInput = null
     curOperator = operator
     subDisplay.textContent = `${prevInput} ${curOperator}`
