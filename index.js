@@ -43,16 +43,19 @@ buttons.forEach((button) => {
 
 clearEntryButton.addEventListener('click', () => {
   if (evaluated) {
+    subDisplay.textContent = `${prevInput} ${curOperator}`
     resetValues()
-    evaluated = false
   } else {
     curInput = null
+    subDisplay.textContent = `${prevInput} ${curOperator}`
     mainDisplay.textContent = '0'
   }
 })
 
 clearButton.addEventListener('click', () => {
   resetValues()
+  subDisplay.textContent = ''
+  mainDisplay.textContent = '0'
 })
 
 negateButton.addEventListener('click', () => {
@@ -65,8 +68,6 @@ const resetMainDisplay = () => {
 }
 
 const resetValues = () => {
-  mainDisplay.textContent = '0'
-  subDisplay.textContent = ''
   prevInput = null
   curInput = null
   curOperator = null
