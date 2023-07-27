@@ -3,6 +3,9 @@ let curInput = null
 let curOperator = null
 let needDisplayReset = false
 let evaluated = false
+let decimal = false // if decimal true (parseFloat : parseInt)
+let prevAction = null // to track what button types were pressed in last action
+let operated = false
 
 // add click handler to all buttons
 const buttons = document.querySelectorAll('button')
@@ -12,7 +15,9 @@ const mainDisplay = document.querySelector('.main') // should limit to 20 chars 
 const clearEntryButton = document.querySelector('#ce')
 const clearButton = document.querySelector('#c')
 const negateButton = document.querySelector('#negate')
+const decimalButton = document.querySelector('#decimal')
 
+window.addEventListener('keydown', handleKeyboardInput)
 // add click listener to all number
 buttons.forEach((button) => {
   if (button.className === 'num') {
@@ -42,25 +47,59 @@ buttons.forEach((button) => {
 })
 
 clearEntryButton.addEventListener('click', () => {
-  if (evaluated) {
-    subDisplay.textContent = `${prevInput} ${curOperator}`
-    resetValues()
-  } else {
-    curInput = null
-    subDisplay.textContent = `${prevInput} ${curOperator}`
-    mainDisplay.textContent = '0'
-  }
+  clearEntry()
 })
 
 clearButton.addEventListener('click', () => {
-  resetValues()
-  subDisplay.textContent = ''
-  mainDisplay.textContent = '0'
+  clearScreen()
 })
 
 negateButton.addEventListener('click', () => {
-  negate(parseInt(mainDisplay.textContent))
+  negate(parseFloat(mainDisplay.textContent))
 })
+
+decimalButton.addEventListener('click', () => {
+  handleDecimal()
+  console.log('decimal: ', decimal)
+})
+
+function handleKeyboardInput(e) {
+  if (e.key >= 0 && e.key <= 9) handleNumInput(e.key)
+  if (e.key === '.') handleDecimal()
+  if (e.key === '=' || e.key === 'Enter') handleEvalInput()
+  if (e.key === 'Backspace') clearEntry()
+  if (e.key === 'Escape') clearScreen()
+  if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/')
+    handleOperatorInput(convertOperator(e.key))
+}
+
+function convertOperator(keyboardOperator) {
+  if (keyboardOperator === '/') return '÷'
+  if (keyboardOperator === '*') return '×'
+  if (keyboardOperator === '-') return '−'
+  if (keyboardOperator === '+') return '+'
+}
+
+function clearEntry() {
+  if (evaluated) {
+    subDisplay.textContent = ''
+    mainDisplay.textContent = '0'
+    resetValues()
+  } else {
+    curInput = null
+    subDisplay.textContent =
+      curOperator !== null && prevInput !== null
+        ? `${prevInput} ${curOperator}`
+        : ''
+    mainDisplay.textContent = '0'
+  }
+}
+
+function clearScreen() {
+  resetValues()
+  subDisplay.textContent = ''
+  mainDisplay.textContent = '0'
+}
 
 const resetMainDisplay = () => {
   mainDisplay.textContent = ''
@@ -69,8 +108,8 @@ const resetMainDisplay = () => {
 
 const resetValues = () => {
   prevInput = null
-  curInput = null
   curOperator = null
+  curInput = null
   needDisplayReset = false
   evaluated = false
 }
@@ -84,12 +123,16 @@ function handleNumInput(num) {
     subDisplay.textContent = ''
     evaluated = false
   }
+  //  &&
 
-  if (mainDisplay.textContent === '0' || needDisplayReset) {
+  if (
+    (mainDisplay.textContent === '0' || needDisplayReset || evaluated) &&
+    !mainDisplay.textContent.includes('.')
+  ) {
     resetMainDisplay()
   }
   mainDisplay.textContent += num
-  curInput = parseInt(mainDisplay.textContent)
+  curInput = parseFloat(mainDisplay.textContent)
   debugPrint()
 }
 
@@ -97,7 +140,7 @@ function handleNumInput(num) {
 function handleOperatorInput(operator) {
   // handle when operator is clicked after evaluation has been completed
   if (evaluated) {
-    prevInput = parseInt(mainDisplay.textContent)
+    prevInput = parseFloat(mainDisplay.textContent)
     curInput = null
     curOperator = operator
     subDisplay.textContent = `${prevInput} ${curOperator}`
@@ -108,17 +151,19 @@ function handleOperatorInput(operator) {
   if (prevInput !== null && curOperator !== null && curInput !== null) {
     console.log('double op')
     const ans = operate(prevInput, curOperator, curInput)
-    mainDisplay.textContent = `${ans}`
-    subDisplay.textContent = `${ans} ${operator}`
+    const numDecimals = dynamicFormat(ans)
+    const formattedAns = Number(ans).toFixed(numDecimals)
+    mainDisplay.textContent = `${formattedAns}`
+    subDisplay.textContent = `${formattedAns} ${operator}`
     curOperator = operator
-    prevInput = ans
+    prevInput = formattedAns
     curInput = null
     needDisplayReset = true
   }
   // if operator is clicked when first num is being inputed
   else if (prevInput === null && curOperator === null && curInput !== null) {
     curOperator = operator
-    prevInput = parseInt(mainDisplay.textContent)
+    prevInput = parseFloat(mainDisplay.textContent)
     subDisplay.textContent = `${prevInput} ${curOperator}`
     curInput = null
     needDisplayReset = true
@@ -135,7 +180,7 @@ function handleOperatorInput(operator) {
 function handleEvalInput() {
   if (evaluated) {
     // infinite operations
-    prevInput = parseInt(mainDisplay.textContent)
+    prevInput = parseFloat(mainDisplay.textContent)
     subDisplay.textContent = `${prevInput} ${curOperator} ${curInput} =`
     mainDisplay.textContent = operate(prevInput, curOperator, curInput)
     needDisplayReset = true
@@ -143,15 +188,15 @@ function handleEvalInput() {
     // check for 0 condition
     if (curOperator !== null && curInput == 0) {
       mainDisplay.textContent = 'Result is undefined'
-      // prompt user to reset the calculator
-      // disable mods & operators
       return
     }
 
     if (prevInput !== null && curOperator !== null && curInput !== null) {
       const ans = operate(prevInput, curOperator, curInput)
+      const numDecimals = dynamicFormat(ans)
+      const formattedAns = Number(ans).toFixed(numDecimals)
       subDisplay.textContent = `${prevInput} ${curOperator} ${curInput} =`
-      mainDisplay.textContent = `${ans}`
+      mainDisplay.textContent = `${formattedAns}`
       needDisplayReset = true
       evaluated = true
     } else if (
@@ -160,8 +205,10 @@ function handleEvalInput() {
       curInput === null
     ) {
       const ans = operate(prevInput, curOperator, prevInput)
+      const numDecimals = dynamicFormat(ans)
+      const formattedAns = Number(ans).toFixed(numDecimals)
       subDisplay.textContent = `${prevInput} ${curOperator} ${prevInput} =`
-      mainDisplay.textContent = `${ans}`
+      mainDisplay.textContent = `${formattedAns}`
       needDisplayReset = true
       evaluated = true
     } else if (
@@ -169,12 +216,18 @@ function handleEvalInput() {
       curOperator === null &&
       (curInput === null || curInput !== null)
     ) {
-      curInput = parseInt(mainDisplay.textContent)
+      curInput = parseFloat(mainDisplay.textContent)
       subDisplay.textContent = `${curInput} =`
+      mainDisplay.textContent = `${curInput}`
       needDisplayReset = true
       debugPrint()
     }
   }
+}
+
+function dynamicFormat(number) {
+  const decimals = number.toString().split('.')[1]
+  return decimals ? decimals.length : 0
 }
 
 // evalute the result given the operator and inputs
@@ -223,7 +276,7 @@ function mult(a, b) {
 function negate(num) {
   if (num === 0) return
   if (evaluated) {
-    prevInput = parseInt(-num)
+    prevInput = parseFloat(-num)
     subDisplay.textContent = `negate(${num})`
     mainDisplay.textContent = prevInput
   } else {
@@ -237,6 +290,21 @@ function negate(num) {
     }
   }
   debugPrint()
+}
+
+function handleDecimal() {
+  // handle decimal
+  if (!mainDisplay.textContent.includes('.') && curInput !== null) {
+    mainDisplay.textContent += '.'
+  } else if (curOperator !== null && curInput === null) {
+    mainDisplay.textContent = '0.'
+  } else {
+    return
+  }
+}
+
+function convertIntFloat(number) {
+  return decimal === true ? parseFloat(number) : parseInt(number)
 }
 
 function debugPrint() {
