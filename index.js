@@ -3,7 +3,6 @@ let curInput = null
 let curOperator = null
 let needDisplayReset = false
 let evaluated = false
-let opEval = false
 
 // add click handler to all buttons
 const buttons = document.querySelectorAll('button')
@@ -42,9 +41,33 @@ buttons.forEach((button) => {
   }
 })
 
+clearEntryButton.addEventListener('click', () => {
+  if (evaluated) {
+    resetValues()
+    evaluated = false
+  } else {
+    curInput = null
+    mainDisplay.textContent = '0'
+  }
+})
+
+clearButton.addEventListener('click', () => {
+  resetValues()
+})
+
 const resetMainDisplay = () => {
   mainDisplay.textContent = ''
   needDisplayReset = false
+}
+
+const resetValues = () => {
+  mainDisplay.textContent = '0'
+  subDisplay.textContent = ''
+  prevInput = null
+  curInput = null
+  curOperator = null
+  needDisplayReset = false
+  evaluated = false
 }
 
 function handleNumInput(num) {
@@ -190,24 +213,6 @@ function div(a, b) {
 function mult(a, b) {
   return a * b
 }
-
-// clearEntryButton.addEventListener('click', () => {
-//   curInput = null
-//   initialState = true
-//   mainDisplay.textContent = curInput.toString()
-// })
-
-// clearButton.addEventListener('click', () => {
-//   prevInput = null
-//   curInput = null
-//   mainDisplay.textContent = 0
-//   subDisplay.textContent = ''
-//   initialState = true
-//   curOperator = null
-//   newInput = true
-//   lockFirstOperand = false
-//   evaluated = false
-// })
 
 function debugPrint() {
   console.log('prevInput: ', prevInput)
