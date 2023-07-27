@@ -102,10 +102,17 @@ function handleEvalInput() {
   if (evaluated) {
     // infinite operations
     prevInput = parseInt(mainDisplay.textContent)
-    subDisplay.textContent = `${prevInput} ${curOperator} ${curInput}`
+    subDisplay.textContent = `${prevInput} ${curOperator} ${curInput} =`
     mainDisplay.textContent = operate(prevInput, curOperator, curInput)
     needDisplayReset = true
   } else {
+    // check for 0 condition
+    if (curOperator !== null && curInput == 0) {
+      mainDisplay.textContent = 'Result is undefined'
+      // prompt user to reset the calculator
+      return
+    }
+
     if (prevInput !== null && curOperator !== null && curInput !== null) {
       const ans = operate(prevInput, curOperator, curInput)
       subDisplay.textContent = `${prevInput} ${curOperator} ${curInput} =`
@@ -129,9 +136,10 @@ function handleEvalInput() {
       curOperator === null &&
       (curInput === null || curInput !== null)
     ) {
-      curInput = mainDisplay.textContent
+      curInput = parseInt(mainDisplay.textContent)
       subDisplay.textContent = `${curInput} =`
       needDisplayReset = true
+      debugPrint()
     }
   }
 }
