@@ -7,11 +7,11 @@ let evaluated = false
 // add click handler to all buttons
 const buttons = document.querySelectorAll('button')
 const operators = document.querySelectorAll('.operator')
-// console.log(operators)
 const subDisplay = document.querySelector('.sub')
 const mainDisplay = document.querySelector('.main') // should limit to 20 chars max
 const clearEntryButton = document.querySelector('#ce')
 const clearButton = document.querySelector('#c')
+const negateButton = document.querySelector('#negate')
 
 // add click listener to all number
 buttons.forEach((button) => {
@@ -53,6 +53,10 @@ clearEntryButton.addEventListener('click', () => {
 
 clearButton.addEventListener('click', () => {
   resetValues()
+})
+
+negateButton.addEventListener('click', () => {
+  negate(parseInt(mainDisplay.textContent))
 })
 
 const resetMainDisplay = () => {
@@ -97,7 +101,7 @@ function handleOperatorInput(operator) {
     curOperator = operator
     subDisplay.textContent = `${prevInput} ${curOperator}`
     evaluated = false
-    debugPrint()
+    needDisplayReset = true
   }
   // if another operator is click after num1 (op) num2 is already setup
   if (prevInput !== null && curOperator !== null && curInput !== null) {
@@ -212,6 +216,26 @@ function div(a, b) {
 
 function mult(a, b) {
   return a * b
+}
+
+// MOD
+function negate(num) {
+  if (num === 0) return
+  if (evaluated) {
+    prevInput = parseInt(-num)
+    subDisplay.textContent = `negate(${num})`
+    mainDisplay.textContent = prevInput
+  } else {
+    if (curInput === null) {
+      subDisplay.textContent = `${prevInput} ${curOperator} negate(${prevInput})`
+      mainDisplay.textContent = `${-prevInput}`
+      curInput = -prevInput
+    } else {
+      curInput = -curInput
+      mainDisplay.textContent = `${curInput}`
+    }
+  }
+  debugPrint()
 }
 
 function debugPrint() {
