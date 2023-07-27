@@ -42,7 +42,7 @@ buttons.forEach((button) => {
   }
 })
 
-const resetScreen = () => {
+const resetMainDisplay = () => {
   mainDisplay.textContent = ''
   needDisplayReset = false
 }
@@ -58,7 +58,7 @@ function handleNumInput(num) {
   }
 
   if (mainDisplay.textContent === '0' || needDisplayReset) {
-    resetScreen()
+    resetMainDisplay()
   }
   mainDisplay.textContent += num
   curInput = parseInt(mainDisplay.textContent)
@@ -67,6 +67,7 @@ function handleNumInput(num) {
 
 // should set up prevInput
 function handleOperatorInput(operator) {
+  // handle when operator is clicked after evaluation has been completed
   if (evaluated) {
     prevInput = mainDisplay.textContent
     curInput = null
@@ -75,7 +76,7 @@ function handleOperatorInput(operator) {
     evaluated = false
     debugPrint()
   }
-
+  // if another operator is click after num1 (op) num2 is already setup
   if (prevInput !== null && curOperator !== null && curInput !== null) {
     console.log('double op')
     const ans = operate(prevInput, curOperator, curInput)
@@ -85,13 +86,18 @@ function handleOperatorInput(operator) {
     prevInput = ans
     curInput = null
     needDisplayReset = true
-  } else if (curOperator !== null && curInput !== null) {
-    curOperator = operator
-    subDisplay.textContent = `${prevInput} ${curOperator}`
-    needDisplayReset = true
-  } else {
+  }
+  // if operator is clicked when first num is being inputed
+  else if (prevInput === null && curOperator === null && curInput !== null) {
     curOperator = operator
     prevInput = parseInt(mainDisplay.textContent)
+    subDisplay.textContent = `${prevInput} ${curOperator}`
+    curInput = null
+    needDisplayReset = true
+    debugPrint()
+  } // if operator is clicked again after operator has been set
+  else {
+    curOperator = operator
     subDisplay.textContent = `${prevInput} ${curOperator}`
     needDisplayReset = true
   }
@@ -110,6 +116,7 @@ function handleEvalInput() {
     if (curOperator !== null && curInput == 0) {
       mainDisplay.textContent = 'Result is undefined'
       // prompt user to reset the calculator
+      // disable mods & operators
       return
     }
 
@@ -119,13 +126,11 @@ function handleEvalInput() {
       mainDisplay.textContent = `${ans}`
       needDisplayReset = true
       evaluated = true
-      console.log('solve')
     } else if (
       prevInput !== null &&
       curOperator !== null &&
       curInput === null
     ) {
-      console.log('half')
       const ans = operate(prevInput, curOperator, prevInput)
       subDisplay.textContent = `${prevInput} ${curOperator} ${prevInput} =`
       mainDisplay.textContent = `${ans}`
