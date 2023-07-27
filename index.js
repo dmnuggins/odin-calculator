@@ -143,7 +143,8 @@ function handleOperatorInput(operator) {
     prevInput = parseFloat(mainDisplay.textContent)
     curInput = null
     curOperator = operator
-    subDisplay.textContent = `${prevInput} ${curOperator}`
+    subDisplay.textContent =
+      prevInput !== null ? `${prevInput} ${curOperator}` : `0 ${curOperator}`
     evaluated = false
     needDisplayReset = true
   }
@@ -171,7 +172,9 @@ function handleOperatorInput(operator) {
   } // if operator is clicked again after operator has been set
   else {
     curOperator = operator
-    subDisplay.textContent = `${prevInput} ${curOperator}`
+    subDisplay.textContent =
+      prevInput !== null ? `${prevInput} ${curOperator}` : `0 ${curOperator}`
+    prevInput = 0
     needDisplayReset = true
   }
 }
