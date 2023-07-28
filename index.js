@@ -170,7 +170,12 @@ function handleOperatorInput(operator) {
     needDisplayReset = true
     debugPrint()
   } // if operator is clicked again after operator has been set
-  else {
+  else if (prevInput !== null && curOperator === null && curInput === null) {
+    curOperator = operator
+    subDisplay.textContent =
+      prevInput !== null ? `${prevInput} ${curOperator}` : `0 ${curOperator}`
+    needDisplayReset = true
+  } else {
     curOperator = operator
     subDisplay.textContent =
       prevInput !== null ? `${prevInput} ${curOperator}` : `0 ${curOperator}`
