@@ -157,7 +157,7 @@ function handleOperatorInput(operator) {
     mainDisplay.textContent = `${formattedAns}`
     subDisplay.textContent = `${formattedAns} ${operator}`
     curOperator = operator
-    prevInput = formattedAns
+    prevInput = parseFloat(formattedAns)
     curInput = null
     needDisplayReset = true
   }
@@ -170,17 +170,19 @@ function handleOperatorInput(operator) {
     needDisplayReset = true
     debugPrint()
   } // if operator is clicked again after operator has been set
-  else if (prevInput !== null && curOperator === null && curInput === null) {
+  else if (prevInput === null && curOperator === null) {
     curOperator = operator
+    prevInput = 0
     subDisplay.textContent =
       prevInput !== null ? `${prevInput} ${curOperator}` : `0 ${curOperator}`
     needDisplayReset = true
+    debugPrint()
   } else {
     curOperator = operator
     subDisplay.textContent =
       prevInput !== null ? `${prevInput} ${curOperator}` : `0 ${curOperator}`
-    prevInput = 0
     needDisplayReset = true
+    debugPrint()
   }
 }
 
